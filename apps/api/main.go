@@ -21,6 +21,9 @@ func main() {
 	}
 
 	store := storage.NewMemoryStore()
+	if os.Getenv("SEED_DEMO_DATA") != "false" {
+		storage.SeedDemoFleet(store)
+	}
 	bot := gitops.NewBot(gitops.BotConfig{
 		GitHubAPIBaseURL: os.Getenv("GITHUB_API_URL"),
 		GitHubToken:      os.Getenv("GITHUB_TOKEN"),
