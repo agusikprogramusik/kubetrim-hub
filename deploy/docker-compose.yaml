@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg18
+    container_name: kubetrim-hub-db
+    environment:
+      POSTGRES_USER: kubetrim
+      POSTGRES_PASSWORD: kubetrim-dev-password
+      POSTGRES_DB: kubetrim_hub
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kubetrim -d kubetrim_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  hub-api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    container_name: kubetrim-hub-api
+    environment:
+      PORT: "8090"
+      HUB_API_KEY: "kubetrim-local-dev-key"
+      LLM_ENDPOINT: "http://host.docker.internal:8080/v1"
+      LLM_MODEL_ID: "unsloth/Qwen3.5-9B-GGUF:Q8_0"
+      LLM_ENABLED: "true"
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  hub-worker:
+    build:
+      context: ..
+      dockerfile: apps/worker/Dockerfile
+    container_name: kubetrim-hub-worker
+    environment:
+      LLM_ENDPOINT: "http://host.docker.internal:8080/v1"
+      LLM_MODEL_ID: "unsloth/Qwen3.5-9B-GGUF:Q8_0"
+    depends_on:
+      postgres:
+        condition: service_healthy
