@@ -5,6 +5,12 @@ All notable changes to the **kubetrim-hub** project will be documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1-dev] - 2026-10-22
+
+### Added
+- **Dynamic Cloud & VM SKU Pricing Engine (`pkg/pricing`):** Implemented multi-cloud (`aws`, `gcp`, `azure`, `on-prem`, `auto`) and regional VM instance pricing resolver (`ResolveQuote`) returning exact per-VM hourly rates (`on_demand_hourly_usd`, `spot_hourly_usd`, `derived_vcpu_hourly_usd`, `derived_gib_ram_hourly_usd`) and cluster-weighted `PriceRates`.
+- **Bidirectional Pricing Endpoints (`pkg/api`):** Added `POST /api/v1/pricing/resolve` and `GET /api/v1/pricing/catalog` allowing in-cluster KubeTrim agents/CLI to dynamically fetch VM pricing before evaluating right-sizing waste.
+
 ## [0.2.0-dev] - 2026-10-22
 
 ### Added

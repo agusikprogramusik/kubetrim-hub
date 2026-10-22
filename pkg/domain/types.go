@@ -3,7 +3,7 @@ package domain
 import "time"
 
 const (
-	Version = "0.2.0-dev"
+	Version = "0.2.1-dev"
 
 	StatusVerifiedSavings = "VERIFIED_SAVINGS"
 	StatusRegressionAlert = "REGRESSION_ALERT"
@@ -188,4 +188,51 @@ type PullRequestRecord struct {
 	PRURL           string    `json:"pr_url"`
 	Status          string    `json:"status"` // OPEN, DRY_RUN
 	CreatedAt       time.Time `json:"created_at"`
+}
+
+// PriceRates defines cloud provider hourly compute rates returned to KubeTrim CLI/Agent
+type PriceRates struct {
+	VCPUHourlyX86          float64 `json:"vcpu_hourly_x86"`
+	VCPUHourlyARM64        float64 `json:"vcpu_hourly_arm64"`
+	GiBRAMHourly           float64 `json:"gib_ram_hourly"`
+	SpotDiscountMultiplier float64 `json:"spot_discount_multiplier"`
+	GPUHourlyA100          float64 `json:"gpu_hourly_a100"`
+	GPUHourlyH100          float64 `json:"gpu_hourly_h100"`
+	GPUHourlyGeneric       float64 `json:"gpu_hourly_generic"`
+}
+
+// VMInstancePrice describes the hourly cost and hardware profile of a specific cloud VM SKU
+type VMInstancePrice struct {
+	InstanceType       string  `json:"instance_type"`
+	CloudProvider      string  `json:"cloud_provider"`
+	Region             string  `json:"region"`
+	Architecture       string  `json:"architecture"` // amd64, arm64
+	VCPU               int     `json:"vcpu"`
+	MemoryGiB          float64 `json:"memory_gib"`
+	GPUCount           int     `json:"gpu_count,omitempty"`
+	GPUModel           string  `json:"gpu_model,omitempty"`
+	OnDemandHourlyUSD  float64 `json:"on_demand_hourly_usd"`
+	SpotHourlyUSD      float64 `json:"spot_hourly_usd"`
+	DerivedVCPUHourly  float64 `json:"derived_vcpu_hourly_usd"`
+	DerivedGiBRAMHourly float64 `json:"derived_gib_ram_hourly_usd"`
+}
+
+// PricingQuoteRequest is sent by KubeTrim in-cluster agent/CLI to resolve dynamic VM pricing
+type PricingQuoteRequest struct {
+	ClusterID     string   `json:"cluster_id,omitempty"`
+	CloudProvider string   `json:"cloud_provider"`           // aws, gcp, azure, on-prem, auto
+	Region        string   `json:"region,omitempty"`         // e.g. eu-central-1, us-east-1, europe-west1
+	InstanceTypes []string `json:"instance_types,omitempty"` // e.g. ["m6i.xlarge", "m7g.large"]
+}
+
+// PricingQuoteResponse returns dynamic cloud provider rates and per-VM SKU pricing to KubeTrim
+type PricingQuoteResponse struct {
+	CloudProvider  string                     `json:"cloud_provider"`
+	Region         string                     `json:"region"`
+	Currency       string                     `json:"currency"`
+	HoursPerMonth  float64                    `json:"hours_per_month"`
+	Source         string                     `json:"source"`
+	UpdatedAt      time.Time                  `json:"updated_at"`
+	Rates          PriceRates                 `json:"rates"`
+	InstancePrices map[string]VMInstancePrice `json:"instance_prices"`
 }

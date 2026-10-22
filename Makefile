@@ -1,4 +1,4 @@
-VERSION?=0.2.0-dev
+VERSION?=0.2.1-dev
 GIT_COMMIT?=$(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
 BUILD_DATE?=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 BUILD_DIR=bin
