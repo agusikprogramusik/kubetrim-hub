@@ -1,7 +1,7 @@
 # KubeTrim Hub
 
 > **Enterprise FinOps Control Plane, Multi-Cluster Attribution Engine & GitOps Automation Hub for Kubernetes**
-> *Current Version: `0.1.0-dev` | Backend: `Go 1.27.1` | Frontend: `Next.js 16 / React 19 / TailwindCSS v4`*
+> *Current Version: `0.2.0-dev` | Backend: `Go 1.27.1` | Frontend: `Next.js 16 / React 19 / TailwindCSS v4`*
 
 KubeTrim Hub is the central control plane for the [`kubetrim`](../kubetrim) ecosystem. It ingests read-only cluster audit snapshots (`AuditReport` v1), tracks realized before-and-after savings ($T_0 \to T_1$ via deterministic `ConfigHash`), detects 14-day sawtooth memory leaks, synthesizes 1-Click GitOps Pull Requests, and delivers an **Avant-Garde Tactile Editorial & Precision UI** Executive Dashboard.
 
@@ -15,15 +15,17 @@ kubetrim-hub/
 │   ├── api/                     # Go 1.27.1 REST & SSE server (hub-api)
 │   ├── worker/                  # Go 1.27.1 async processor (hub-worker)
 │   └── web/                     # Next.js 16 + React 19 Frontend (hub-web)
-├── pkg/                         # Shared Hub Domain Packages
-│   ├── domain/                  # Core entities (Cluster, Snapshot, Attribution, PR)
-│   ├── ingestion/               # Snapshot receiver & schema v1 validation
+├── pkg/                         # Shared Hub Domain Packages (>85% TDD Coverage)
+│   ├── domain/                  # Core entities (AuditReport, Attribution, Anomaly, PR)
+│   ├── api/                     # Gin v1.12+ HTTP router, auth middleware & handlers
 │   ├── diff/                    # T0 -> T1 ROI attribution & SLA regression guard
-│   ├── anomaly/                 # 14-day sawtooth memory leak detector
-│   ├── gitops/                  # 1-Click PR automation (GitHub / GitLab API)
-│   ├── copilot/                 # FinOps RAG pipeline over PostgreSQL 18 pgvector
-│   ├── notifications/           # Slack & MS Teams executive digest bots
-│   └── storage/                 # PostgreSQL 18 + TimescaleDB + pgvector repository
+│   ├── anomaly/                 # 14-day sawtooth memory leak & Idle GPU detector
+│   ├── gitops/                  # 1-Click PR automation (Kustomize v5 + GitHub API)
+│   ├── copilot/                 # FinOps RAG & Qwen3.5-9B / frontier LLM Copilot
+│   ├── notifications/           # Slack & MS Teams executive digest & alert bots
+│   └── storage/                 # Multi-cluster time-series store + PostgreSQL 18 DDL
+├── deploy/
+│   └── docker-compose.yaml      # Local stack (pgvector:pg18 + hub-api + hub-worker)
 ├── docs/
 │   └── architecture/
 │       └── design-philosophy.md # October 2026 Tactile Editorial & Precision UI spec
@@ -31,6 +33,21 @@ kubetrim-hub/
 ├── AGENTS.md                    # Multi-agent engineering & design invariants
 └── CHANGELOG.md                 # Semantic versioning release history
 ```
+
+---
+
+## 🔌 REST API Endpoints (`v1`)
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/healthz`, `/ready` | Liveness & readiness probes |
+| `POST` | `/api/v1/clusters/:cluster_id/snapshots` | Non-blocking (`202 Accepted`) `AuditReport` v1 ingestion |
+| `GET` | `/api/v1/executive/kpis` | Fleet-wide FinOps KPIs (Spend, Waste, Realized Savings, Alerts) |
+| `GET` | `/api/v1/clusters` | Multi-cluster overview and efficiency scores |
+| `GET` | `/api/v1/clusters/:cluster_id/attribution` | $T_0 \to T_1$ `ConfigHash` ROI & SLA Regression verification |
+| `GET` | `/api/v1/clusters/:cluster_id/anomalies` | Sawtooth Memory Leaks (`LEAK_SUSPECTED`) & Idle GPU alerts |
+| `POST` | `/api/v1/gitops/pr` | 1-Click Kustomize v5 Patch & GitHub Pull Request synthesizer |
+| `POST` | `/api/v1/copilot/chat` | Grounded FinOps RAG & Copilot Q&A (`Qwen3.5-9B-GGUF:Q8_0`) |
 
 ---
 
