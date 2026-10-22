@@ -1,7 +1,7 @@
 # KubeTrim Hub
 
 > **Enterprise FinOps Control Plane, Multi-Cluster Attribution Engine & GitOps Automation Hub for Kubernetes**
-> *Current Version: `0.2.0-dev` | Backend: `Go 1.27.1` | Frontend: `Next.js 16 / React 19 / TailwindCSS v4`*
+> *Current Version: `0.2.2-dev` | Backend: `Go 1.27.1` | Frontend Repo: [`kubetrim-web`](../kubetrim-web) (`Next.js 16 / React 19 / TailwindCSS v4`)*
 
 KubeTrim Hub is the central control plane for the [`kubetrim`](../kubetrim) ecosystem. It ingests read-only cluster audit snapshots (`AuditReport` v1), tracks realized before-and-after savings ($T_0 \to T_1$ via deterministic `ConfigHash`), detects 14-day sawtooth memory leaks, synthesizes 1-Click GitOps Pull Requests, and delivers an **Avant-Garde Tactile Editorial & Precision UI** Executive Dashboard.
 

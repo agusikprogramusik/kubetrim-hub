@@ -3,7 +3,7 @@ package domain
 import "time"
 
 const (
-	Version = "0.2.1-dev"
+	Version = "0.2.2-dev"
 
 	StatusVerifiedSavings = "VERIFIED_SAVINGS"
 	StatusRegressionAlert = "REGRESSION_ALERT"
