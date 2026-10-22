@@ -181,6 +181,29 @@ func TestAPIServerEndToEnd(t *testing.T) {
 		t.Fatalf("expected 200 on /api/v1/copilot/chat, got %d: %s", wChat.Code, wChat.Body.String())
 	}
 
+	// 6b. Test Dynamic Cloud & VM Pricing endpoints (POST /api/v1/pricing/resolve & GET /api/v1/pricing/catalog)
+	priceReqBytes, _ := json.Marshal(domain.PricingQuoteRequest{
+		ClusterID:     "prod-eu-central-1",
+		CloudProvider: "aws",
+		Region:        "eu-central-1",
+		InstanceTypes: []string{"m6i.xlarge", "m7g.large"},
+	})
+	wPricePost := httptest.NewRecorder()
+	reqPricePost := httptest.NewRequest(http.MethodPost, "/api/v1/pricing/resolve", bytes.NewReader(priceReqBytes))
+	reqPricePost.Header.Set("Authorization", "Bearer secret-hub-key")
+	router.ServeHTTP(wPricePost, reqPricePost)
+	if wPricePost.Code != http.StatusOK {
+		t.Fatalf("expected 200 on POST /api/v1/pricing/resolve, got %d: %s", wPricePost.Code, wPricePost.Body.String())
+	}
+
+	wPriceGet := httptest.NewRecorder()
+	reqPriceGet := httptest.NewRequest(http.MethodGet, "/api/v1/pricing/catalog?provider=gcp&region=europe-west1&instance_types=n2-standard-4,e2-medium", nil)
+	reqPriceGet.Header.Set("Authorization", "Bearer secret-hub-key")
+	router.ServeHTTP(wPriceGet, reqPriceGet)
+	if wPriceGet.Code != http.StatusOK {
+		t.Fatalf("expected 200 on GET /api/v1/pricing/catalog, got %d: %s", wPriceGet.Code, wPriceGet.Body.String())
+	}
+
 	// 7. Test validation & error branches (open mode, 400s, 404s)
 	openSrv := NewServer(ServerConfig{APIKey: ""})
 	openRouter := openSrv.Router()

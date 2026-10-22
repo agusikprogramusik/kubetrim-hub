@@ -48,6 +48,8 @@ kubetrim-hub/
 | `GET` | `/api/v1/clusters/:cluster_id/anomalies` | Sawtooth Memory Leaks (`LEAK_SUSPECTED`) & Idle GPU alerts |
 | `POST` | `/api/v1/gitops/pr` | 1-Click Kustomize v5 Patch & GitHub Pull Request synthesizer |
 | `POST` | `/api/v1/copilot/chat` | Grounded FinOps RAG & Copilot Q&A (`Qwen3.5-9B-GGUF:Q8_0`) |
+| `POST` | `/api/v1/pricing/resolve` | Resolve dynamic cloud provider & per-VM SKU pricing for in-cluster agents |
+| `GET` | `/api/v1/pricing/catalog` | Query cloud provider & VM instance pricing catalog (`aws`, `gcp`, `azure`, `on-prem`) |
 
 ---
 

@@ -10,6 +10,7 @@ import (
 	"github.com/agusikprogramusik/kubetrim-hub/pkg/domain"
 	"github.com/agusikprogramusik/kubetrim-hub/pkg/gitops"
 	"github.com/agusikprogramusik/kubetrim-hub/pkg/notifications"
+	"github.com/agusikprogramusik/kubetrim-hub/pkg/pricing"
 	"github.com/agusikprogramusik/kubetrim-hub/pkg/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -89,6 +90,8 @@ func (s *Server) registerRoutes() {
 		v1.POST("/gitops/pr", s.handleCreateGitOpsPR)
 		v1.GET("/gitops/prs", s.handleListGitOpsPRs)
 		v1.POST("/copilot/chat", s.handleCopilotChat)
+		v1.POST("/pricing/resolve", s.handleResolvePricing)
+		v1.GET("/pricing/catalog", s.handleGetPricingCatalog)
 	}
 }
 
@@ -250,4 +253,42 @@ func (s *Server) handleCopilotChat(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, resp)
+}
+
+func (s *Server) handleResolvePricing(c *gin.Context) {
+	var req domain.PricingQuoteRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	quote, err := pricing.ResolveQuote(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, quote)
+}
+
+func (s *Server) handleGetPricingCatalog(c *gin.Context) {
+	provider := c.Query("provider")
+	region := c.Query("region")
+	rawTypes := c.Query("instance_types")
+	var instanceTypes []string
+	if strings.TrimSpace(rawTypes) != "" {
+		for _, part := range strings.Split(rawTypes, ",") {
+			if trimmed := strings.TrimSpace(part); trimmed != "" {
+				instanceTypes = append(instanceTypes, trimmed)
+			}
+		}
+	}
+	quote, err := pricing.ResolveQuote(domain.PricingQuoteRequest{
+		CloudProvider: provider,
+		Region:        region,
+		InstanceTypes: instanceTypes,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, quote)
 }
